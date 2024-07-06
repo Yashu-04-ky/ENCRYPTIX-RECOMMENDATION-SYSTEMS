@@ -1,0 +1,37 @@
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+user_item_matrix = np.array([
+    [5, 3, 0, 1, 0],
+    [4, 0, 4, 0, 2],
+    [0, 0, 5, 2, 3],
+    [1, 4, 0, 3, 0],
+    [0, 2, 0, 0, 5]
+])
+item_feature_matrix = np.array([
+    [1, 0, 1, 0, 0],
+    [0, 1, 0, 1, 0],
+    [1, 1, 1, 0, 0],
+    [0, 0, 0, 1, 1],
+    [0, 1, 0, 0, 1]
+])
+def user_similarity(user_item_matrix):
+    similarity_matrix = cosine_similarity(user_item_matrix)
+    np.fill_diagonal(similarity_matrix, 0) 
+    return similarity_matrix
+def item_similarity(item_feature_matrix):
+    similarity_matrix = cosine_similarity(item_feature_matrix)
+    np.fill_diagonal(similarity_matrix, 0) 
+    return similarity_matrix
+def recommend_products(user_id, user_item_matrix, item_feature_matrix, user_sim_matrix, item_sim_matrix):
+    user_profile = user_item_matrix[user_id]
+    user_similarities = user_sim_matrix[user_id]
+    collaborative_scores = np.dot(user_similarities, user_item_matrix)
+    content_based_scores = np.dot(user_profile, item_sim_matrix)
+    combined_scores = (collaborative_scores + content_based_scores) / 2
+    recommended_products = np.argsort(combined_scores)[::-1]
+    return recommended_products
+user_id = 0
+user_sim_matrix = user_similarity(user_item_matrix)
+item_sim_matrix = item_similarity(item_feature_matrix)
+recommended_products = recommend_products(user_id, user_item_matrix, item_feature_matrix, user_sim_matrix, item_sim_matrix)
+print("Recommended products for User", user_id, ":", recommended_products)
